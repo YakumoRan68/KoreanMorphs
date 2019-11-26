@@ -7,12 +7,8 @@ from korea_news_crawler.articleparser import ArticleParser
 from korea_news_crawler.articlecrawler import ArticleCrawler
 from bs4 import BeautifulSoup
 
-category = "001" #속보
-NEWS_LIST_URL = "http://news.naver.com/main/list.nhn?mode=LSD&mid=sec&sid1=" + category + "&date="
-NEWS_LIST_URL_BY_DATE = ArticleCrawler().make_news_page_url(NEWS_LIST_URL, 2019, 2019, 11, 11)
-
 NOW = datetime.datetime.now()
-FILE_NAME = (str)(NOW.year) + "-" + (str)(NOW.month) + "-" + (str)(NOW.day) + "-" + (str)(NOW.hour) + "-" + (str)(NOW.minute)
+FILE_NAME = f'{NOW.year}-{NOW.month:02d}-{NOW.day:02d}-{NOW.hour:02d}-{NOW.minute:02d}-{NOW.second:02d}'
 
 def get_url_data(url, max_tries=10): #referenced from : https://github.com/lumyjuwon/KoreaNewsCrawler/blob/master/korea_news_crawler/articlecrawler.py
     remaining_tries = int(max_tries)
@@ -24,7 +20,18 @@ def get_url_data(url, max_tries=10): #referenced from : https://github.com/lumyj
         remaining_tries = remaining_tries - 1
     raise ResponseTimeout()
 
-with io.open(FILE_NAME, 'w', encoding = 'utf-8') as output :
+ArticleParser.special_symbol = re.compile('[\{\}\[\]\/?,;:|\)*~`!^\-_+<>@\#$&▲▶◆◀■【】\\\=\(\'\"◇※ⓒ©…△]')
+ArticleParser.content_pattern = re.compile('본문 내용|TV플레이어| 동영상 뉴스|flash 오류를 우회하기 위한 함수 추가function  flash removeCallback|tt|앵커 멘트|xa0|SUB TITLE START|SUB TITLE END|For Use Only in the Republic of Korea. No Redistribution|Yonhapnews|newsis.com|misocamera|ytn.co.kr|MobileAdNew center|yna.co.kr|nkphoto|photo|seephoto|bulls')
+
+category = input("속보(001) 정치(100) 경제(101) 사회(102) 생활문화(103) 세계(104) IT과학(105) 오피니언(110)\n카테고리 입력 : ")
+y1, y2, m1, m2 = map(int, input("년(시작), 년(끝), 월(시작), 월(끝) 입력 : ").split())
+NEWS_LIST_URL = "http://news.naver.com/main/list.nhn?mode=LSD&mid=sec&sid1=" + category + "&date="
+
+print(f"Make news list URL from {y1}-{m1:02d} to {y2}-{m2:02d}")
+NEWS_LIST_URL_BY_DATE = ArticleCrawler().make_news_page_url(NEWS_LIST_URL, y1, y2, m1, m2)
+
+with io.open(FILE_NAME, 'w+', encoding = 'utf-8') as output :
+    print("Create file " + FILE_NAME + ", start crawling...")
     for URL in NEWS_LIST_URL_BY_DATE : #referenced from : https://github.com/lumyjuwon/KoreaNewsCrawler/blob/master/korea_news_crawler/articlecrawler.py
         regex = re.compile("date=(\d+)")
         news_date = regex.findall(URL)[0]
