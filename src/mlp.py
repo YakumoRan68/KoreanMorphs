@@ -1,7 +1,6 @@
 from tensorflow import keras
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Activation
-#from tensorflow.keras.optimizers import SGD
 from random import shuffle
 import random
 import tensorflow as tf
@@ -52,7 +51,6 @@ def train(x_train, y_train, x_test, y_test):
     model.add(Dropout(0.5))
     model.add(Dense(7, activation='softmax'))
 
-    #예비 optimizer sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='categorical_crossentropy',
                   optimizer='adam',
                   metrics=['accuracy'])
@@ -67,84 +65,17 @@ def train(x_train, y_train, x_test, y_test):
 
     #training
     model.fit(x_train, y_train,
-              epochs=20,
+              epochs=10,
               validation_data=(x_test, y_test), 
               callbacks=[tensorboard_callback])
+    model.save(datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+
+def load_model(m):
+    return keras.models.load_model(m)
+
+    
 
 #tensorboard 사용(기본경로 바탕화면/src)
 def use_tensorboard():
     os.system('explorer http://localhost:6006')
     os.system('tensorboard --logdir %systemdrive%/users/%username%/desktop/src/logs/fit')
-
-
-
-
-#for test (another model)
-'''
-x_train = np.random.random((1000, 20))
-y_train = keras.utils.to_categorical(np.random.randint(10, size=(1000, 1)), num_classes=10)
-x_test = np.random.random((100, 20))
-y_test = keras.utils.to_categorical(np.random.randint(10, size=(100, 1)), num_classes=10)
-num_words = 20
-
-
-model = keras.models.Sequential([
-    keras.layers.Dense(16, activation='relu', input_shape=(num_words,)),
-    keras.layers.Dropout(0.5),
-    keras.layers.Dense(16, activation='relu'),
-    keras.layers.Dropout(0.5),
-    keras.layers.Dense(1, activation='softmax')
-])
-
-
-model.compile(optimizer='adam',
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-
-model.summary()
-
-log_dir = os.path.join(
-    "logs",
-    "fit",
-    datetime.datetime.now().strftime("%Y%m%d-%H%M%S"),
-)
-tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
-
-model.fit(x=x_train, 
-          y=y_train, 
-          epochs=5,
-          validation_data=(x_test, y_test), 
-          callbacks=[tensorboard_callback])
-
-
-
-#tensorflow
-def train(self):
-        'model trainning'
-        x_data = [] #format : [word]
-        y_data = [] #format : [morpheme]
-                
-        
-        
-        X = tf.placeholder(tf.float32, [None, 3])
-        Y = tf.placeholder(tf.float32, [None, 7])
-        classes = 7
-
-        W = tf.Variable(tf.random_normal([3, classes]), name='weight')
-        b = tf.Variable(tf.random_normal([classes]), name='bias')
-
-        hypothesis = tf.nn.softmax(tf.matmul(X, W) + b)
-        cost = tf.reduce_mean(-tf.reduce_sum(Y * tf.log(hypothesis), axis=1))
-
-        optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.1).minimize(cost)
-
-        with tf.Session() as sess:
-            sess.run(tf.global_variables_initializer())
-
-            for step in range(2001):
-                result = sess.run(optimizer, feed_dict={X : x_data, Y : y_data})
-                if step % 200 == 00:
-                    print(step, sess.run(cost, feed_dict={X : x_data, Y : y_data}))
-                    #print(sess.run(tf.arg_max(result,1)))
-                    print(result)
-'''

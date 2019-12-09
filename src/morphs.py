@@ -59,6 +59,7 @@ class Morphs():
                 if len(tag_buffer):
                     self.morphs.append(morph_buffer)
                     self.tags.append(tag_buffer)
+                    break
             
 
     def pos(self, document):
@@ -67,21 +68,3 @@ class Morphs():
         sentences = self.get_sentences(document)
         self.get_morphs(sentences)
         print('done')
-
-    
-        
-    def load(self, path):
-        'load trainned model'
-        raise
-
-
-    
-
-
-#test
-'''
-if __name__=='__main__':   
-    morphs = Morphs()
-    document = konlpy.corpus.kolaw.open('constitution.txt').read()
-    morphs.pos(document)
-'''

@@ -77,15 +77,13 @@ def set_data(text):
   insert_data('dictionary', morphs.morphs, morphs.tags, left, right)
 
 
-def get_data(directory, column):
+def get_data(directory, word):
     isfile(directory)
     try:
       conn = sql.connect(directory)
       cur = conn.cursor()
-      for X, Y in x, y:
-        cur.execute(f'SELECT {column} FROM Words')
-      cur.execute('commit;')
-      print('commit 완료.')
+      cur.execute(f'SELECT n, y, left, right FROM Words WHERE x="{word}"')
+      return cur.fetchone()
     except Exception as e:
       return e
 

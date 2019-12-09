@@ -3,19 +3,40 @@ from morphs import *
 from sql import *
 
 
-#pos tags
-#N(명사) V(용언) M(관형사,부사) J(조사) E(어미) X(접미사) S(부호)
-tags = 'NVMJESX'
+
+def train_model():
+    #load model
+    x_train, x_test, y_train, y_test = prepare()
+
+    #train
+    train(x_train, y_train, x_test, y_test)
+
+    #tensorboard
+    use_tensorboard()
 
 
-#data set
-for i in range(1, 12):
-    print(f'trying document_{i}')
-    set_data(f'disk{i}.txt')
-#x_train, x_test, y_train, y_test = prepare()
+def classify(text, m):
+    'classify text by m'
+    #pos tags
+    #N(명사) V(용언) M(관형사,부사) J(조사) E(어미) X(접미사) S(부호)
+    tags = 'NVMJESX'
+    morphs = Morphs()
 
-#train
-#train(x_train, y_train, x_test, y_test)
+    model = load_model(m)
+    
+    try:
+        words = morphs.hannanum.morphs(text)
+        result = []
+        
+        for word in words:
+            w, y, left, right = get_data('dictionary', word)
+            X=[[w, 0 if left=='' else int(left), 0 if right=='' else int(right)]]
+            Y=[one_hot(y)]
+            model.evaluate(X, Y)
+            result.append((word, y))
+        print(result)
+    except Exception as e:
+        print('dictionary에 매칭되지 않는 단어가 있어 종료합니다.', e)
+        return
 
-#tensorboard
-#use_tensorboard()
+
