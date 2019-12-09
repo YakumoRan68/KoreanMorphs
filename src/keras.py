@@ -9,9 +9,9 @@ tags = 'NVMJESX'
 
 
 #data set
-for i in range(1, 21):
+for i in range(1, 12):
     print(f'trying document_{i}')
-    set_data(f'document_{i}.txt')
+    set_data(f'disk{i}.txt')
 #x_train, x_test, y_train, y_test = prepare()
 
 #train
